@@ -1,0 +1,6 @@
+emlib/
+CMSIS/
+**Debug/
+.cproject*
+.project*
+imported_project_report.html

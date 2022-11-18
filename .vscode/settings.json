@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "gpio.h": "c",
+        "scheduler.h": "c",
+        "stdint.h": "c",
+        "em_assert.h": "c",
+        "si7021.h": "c"
+    }
+}
