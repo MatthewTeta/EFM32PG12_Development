@@ -132,12 +132,6 @@ void i2c_open(I2C_TypeDef *i2c_x, I2C_open_type *i2c_open_struct) {
   while (i2c0_sm.busy || i2c1_sm.busy)
     ;
 
-  // Initialize the job qeues if not already
-  // if (i2c0_q == NULL)
-  //   *i2c0_q = queue_new(I2C_QUEUE_CAPACITY);
-  // if (i2c1_q == NULL)
-  //   *i2c1_q = queue_new(I2C_QUEUE_CAPACITY);
-
   // Enable clock to peripheral
   if (i2c_x == I2C0) {
     CMU_ClockEnable(cmuClock_I2C0, true);
@@ -160,7 +154,7 @@ void i2c_open(I2C_TypeDef *i2c_x, I2C_open_type *i2c_open_struct) {
   // Set GPIO Routes
   // PC11 SDA 16 or SCL 15
   // PC10 SDA 15 or SCL 14
-  i2c_x->ROUTELOC0 = i2c_open_struct->SDALOC | i2c_open_struct->SCLLOC;
+  i2c_x->ROUTELOC0 = i2c_open_struct->SDA_LOC | i2c_open_struct->SCL_LOC;
   i2c_x->ROUTEPEN  = (uint32_t)(((i2c_open_struct->SCL_EN & 0x01) << 1) |
                                (i2c_open_struct->SDA_EN & 0x01));
 
@@ -205,11 +199,6 @@ void i2c_write(I2C_TypeDef *i2c_x, uint8_t device_addr, uint8_t *buff,
   // Argument invalid checking
   if (buff == NULL)
     EFM_ASSERT(false);
-
-  // // Check that job queues are initialized (i2c_open)
-  // if (i2c0_q == NULL || i2c1_q == NULL)
-  //   EFM_ASSERT(false);
-
   volatile i2c_sm_t *sm = _get_sm_from_i2c(i2c_x);
 
   // Wait for previous i2c_x job to complete
@@ -232,19 +221,6 @@ void i2c_write(I2C_TypeDef *i2c_x, uint8_t device_addr, uint8_t *buff,
 
   // Begin transaction
   _i2c_sm_handle_nack(sm);
-
-  // // insert job into the job queue for the given i2c_x
-  // CORE_DECLARE_IRQ_STATE;
-  // CORE_ENTER_CRITICAL();
-
-  // // if (i2c_x == I2C0)
-  // //   queue_push(i2c0_q, (void *)job);
-  // // if (i2c_x == I2C1)
-  // //   queue_push(i2c1_q, (void *)job);
-  // CORE_EXIT_CRITICAL();
-
-  // Start the job
-  // _i2c_do_next_job(i2c_x);
 }
 
 void i2c_read(I2C_TypeDef *i2c_x, uint8_t device_addr, uint8_t *buff,
@@ -252,10 +228,6 @@ void i2c_read(I2C_TypeDef *i2c_x, uint8_t device_addr, uint8_t *buff,
   // Argument invalid checking
   if (buff == NULL)
     EFM_ASSERT(false);
-
-  // // Check that job queues are initialized (i2c_open)
-  // if (i2c0_q == NULL || i2c1_q == NULL)
-  //   EFM_ASSERT(false);
 
   volatile i2c_sm_t *sm = _get_sm_from_i2c(i2c_x);
 

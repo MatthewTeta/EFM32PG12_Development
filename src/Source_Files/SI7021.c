@@ -26,14 +26,14 @@ void si7021_i2c_open(I2C_TypeDef *i2c_x) {
   // Wait for peripheral to be ready after power on
   timer_delay(SI7021_POW_MS);
 
-  uint32_t SDALOC;
-  uint32_t SCLLOC;
+  uint32_t SDA_LOC;
+  uint32_t SCL_LOC;
   if (i2c_x == I2C0) {
-    SDALOC = I2C_ROUTELOC0_SDALOC_LOC15;
-    SCLLOC = I2C_ROUTELOC0_SCLLOC_LOC15;
+    SDA_LOC = I2C_ROUTELOC0_SDALOC_LOC15;
+    SCL_LOC = I2C_ROUTELOC0_SCLLOC_LOC15;
   } else if (i2c_x == I2C1) {
-    SDALOC = I2C_ROUTELOC0_SDALOC_LOC20;
-    SCLLOC = I2C_ROUTELOC0_SCLLOC_LOC19;
+    SDA_LOC = I2C_ROUTELOC0_SDALOC_LOC20;
+    SCL_LOC = I2C_ROUTELOC0_SCLLOC_LOC19;
   } else
     EFM_ASSERT(false);
 
@@ -46,8 +46,8 @@ void si7021_i2c_open(I2C_TypeDef *i2c_x) {
               .freq    = I2C_FREQ_FAST_MAX,
               .refFreq = 0,
           },
-      .SDALOC = SDALOC,
-      .SCLLOC = SCLLOC,
+      .SDA_LOC = SDA_LOC,
+      .SCL_LOC = SCL_LOC,
       .SCL_EN = true,
       .SDA_EN = true,
   };

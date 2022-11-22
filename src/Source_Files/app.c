@@ -8,6 +8,7 @@
 //***********************************************************************************
 // Include files
 //***********************************************************************************
+#include <string.h>
 #include "app.h"
 
 //***********************************************************************************
@@ -141,13 +142,15 @@ void scheduled_si7021_read_humidity_cb(void) {
   float rv = si7021_get_humidity();
   if (rv < 0 || rv > 100)
     return;
+  char s[32];
+  sprintf("%f\n", rv);
+  leuart_tx_buff(BLE_LEUART, s, 32, 0);
   EFM_ASSERT(true);
 }
 
 void scheduled_si7021_read_temperature_cb(void) {
   float rv = si7021_get_temperature();
-  if (rv < 0 || rv > 100)
-    return;
+  // leuart_tx_buff()
   EFM_ASSERT(true);
 }
 

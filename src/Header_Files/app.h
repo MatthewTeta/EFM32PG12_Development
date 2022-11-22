@@ -16,6 +16,7 @@
 #include "cmu.h"
 #include "gpio.h"
 #include "letimer.h"
+#include "leuart.h"
 #include "scheduler.h"
 #include "sleep_routines.h"
 

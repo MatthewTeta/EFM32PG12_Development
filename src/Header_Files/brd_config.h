@@ -10,6 +10,7 @@
 /* Silicon Labs include statements */
 #include "em_cmu.h"
 #include "em_gpio.h"
+#include "em_leuart.h"
 
 /* The developer's include statements */
 
@@ -80,6 +81,9 @@
 #define SI7021_SENSOR_EN_PIN  10
 #define SI7021_SENSOR_EN_DRIVE_STRENGTH     gpioDriveStrengthWeakAlternateWeak
 #define SI7021_SENSOR_EN_GPIOMODE           gpioModePushPull
+
+// BLE LEUART Setup
+#define BLE_LEUART LEUART0
 
 //***********************************************************************************
 // global variables

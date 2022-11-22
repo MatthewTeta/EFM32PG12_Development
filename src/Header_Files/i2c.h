@@ -22,8 +22,8 @@
 
 typedef struct {
   I2C_Init_TypeDef init;
-  uint32_t         SDALOC;
-  uint32_t         SCLLOC;
+  uint32_t         SDA_LOC;
+  uint32_t         SCL_LOC;
   bool             SDA_EN;
   bool             SCL_EN;
 } I2C_open_type;
