@@ -11,14 +11,14 @@ typedef struct {
 } leuart_tx_sm_t;
 
 // Private static
-static bool leuart_opened = false;
+// static bool leuart_opened = false;
 
 // Private static functions
 static void _leuart_bus_reset(LEUART_TypeDef *leuart_x);
 static volatile leuart_tx_sm_t             *
 _get_leuart_tx_sm_from_leuart_td(LEUART_TypeDef *leuart_x);
-static void _leuart_tx_sm_handle_TXC(leuart_tx_sm_t *sm);
-static void _leuart_tx_sm_handle_TXBL(leuart_tx_sm_t *sm);
+static void _leuart_tx_sm_handle_TXC(volatile leuart_tx_sm_t *sm);
+static void _leuart_tx_sm_handle_TXBL(volatile leuart_tx_sm_t *sm);
 
 // sm singleton for each leuart on board
 static volatile leuart_tx_sm_t leuart0_tx_sm = {
@@ -67,7 +67,7 @@ void leuart_open(LEUART_TypeDef *leuart_x, leuart_open_t *o) {
 }
 
 void leuart_tx_buff(LEUART_TypeDef *leuart_x, uint8_t *buff, uint32_t len, scheduler_event_t cb_event) {
-  leuart_tx_sm_t *sm = _get_leuart_tx_sm_from_leuart_td(leuart_x);
+  volatile leuart_tx_sm_t *sm = _get_leuart_tx_sm_from_leuart_td(leuart_x);
   // Block while peripheral transmit is busy
   while (sm->busy)
     ;
@@ -75,7 +75,6 @@ void leuart_tx_buff(LEUART_TypeDef *leuart_x, uint8_t *buff, uint32_t len, sched
   // Begin transaction by calling equivallent IRQ handler function
   sleep_block_mode(LEUART_EM_BLOCK);
   // Fill tx sm
-  volatile leuart_tx_sm_t *sm = _get_leuart_tx_sm_from_leuart_td(leuart_x);
   sm->busy = true;
   sm->buff = buff;
   sm->i = 0;
@@ -126,7 +125,7 @@ void LEUART0_IRQHandler(void) {
  *
  * @param sm Instance of tx state machine for the given leuart
  */
-static void _leuart_tx_sm_handle_TXC(leuart_tx_sm_t *sm) {
+static void _leuart_tx_sm_handle_TXC(volatile leuart_tx_sm_t *sm) {
   EFM_ASSERT(sm->busy);
   if (sm->i < sm->len)
     return;
@@ -141,7 +140,7 @@ static void _leuart_tx_sm_handle_TXC(leuart_tx_sm_t *sm) {
  *
  * @param sm Instance of tx state machine for the given leuart
  */
-static void _leuart_tx_sm_handle_TXBL(leuart_tx_sm_t *sm) {
+static void _leuart_tx_sm_handle_TXBL(volatile leuart_tx_sm_t *sm) {
   EFM_ASSERT(sm->busy);
   if (sm->i < sm->len) {
     sm->leuart_x->TXDATA = sm->buff[sm->i];

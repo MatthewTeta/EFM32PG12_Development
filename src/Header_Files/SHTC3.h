@@ -17,7 +17,11 @@
 #define SHTC3_RX_MEASURE_BUFF_LEN 2
 #define SHTC3_POW_MS              0.24
 
-void shtc3_i2c_open(shtc3_open_t s);
+typedef struct {
+    bool todo;
+} shtc3_open_t;
+
+void shtc3_i2c_open(shtc3_open_t *s);
 void shtc3_i2c_begin_read(scheduler_event_t event);
 
 float shtc3_get_temperature(void);

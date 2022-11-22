@@ -8,7 +8,7 @@
 //***********************************************************************************
 // Include files
 //***********************************************************************************
-#include <string.h>
+#include <stdio.h>
 #include "app.h"
 
 //***********************************************************************************
@@ -51,6 +51,9 @@ void app_peripheral_setup(void) {
   scheduler_open();
   sleep_open();
   si7021_i2c_open(I2C0);
+  // shtc3_i2c_open(I2C1);
+  // leuart_open()
+
   letimer_start(LETIMER0, true); // letimer_start will inform the LETIMER0
                                  // peripheral to begin counting.
 }
@@ -143,21 +146,22 @@ void scheduled_si7021_read_humidity_cb(void) {
   if (rv < 0 || rv > 100)
     return;
   char s[32];
-  sprintf("%f\n", rv);
-  leuart_tx_buff(BLE_LEUART, s, 32, 0);
+  int len = sprintf(s, "%f\n", rv);
+  if (len < 0) EFM_ASSERT(false);
+  leuart_tx_buff(BLE_LEUART, s, (uint32_t)len, 0);
   EFM_ASSERT(true);
 }
 
 void scheduled_si7021_read_temperature_cb(void) {
-  float rv = si7021_get_temperature();
+  // float rv = si7021_get_temperature();
   // leuart_tx_buff()
   EFM_ASSERT(true);
 }
 
 void scheduled_shtc3_read_cb(void) {
-  float humidity = shtc3_get_humidity();
-  float temperature = shtc3_get_temperature();
-  if (humidity < 0 || humidity > 100)
-    return;
+  // float humidity = shtc3_get_humidity();
+  // float temperature = shtc3_get_temperature();
+  // if (humidity < 0 || humidity > 100)
+  //   return;
   EFM_ASSERT(true);
 }
