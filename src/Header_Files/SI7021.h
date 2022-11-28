@@ -18,10 +18,19 @@
 #define SI7021_RX_MEASURE_BUFF_LEN     2
 #define SI7021_POW_MS                  80
 
-void  si7021_i2c_open(I2C_TypeDef *i2c_x);
-void  si7021_i2c_begin_read_humidity(uint32_t EVENT_ID);
-void  si7021_i2c_begin_read_temperature(uint32_t EVENT_ID);
+// Configure the given I2C peripheral for use with the SI7021
+void si7021_i2c_open(I2C_TypeDef *i2c_x);
+
+// Request a new humidity value with given callback event
+void si7021_i2c_begin_read_humidity(uint32_t EVENT_ID);
+
+// Request a new temperature value with given callback event
+void si7021_i2c_begin_read_temperature(uint32_t EVENT_ID);
+
+// Returns the most recent humidity measurement
 float si7021_get_humidity(void);
+
+// Returns the most recent temperature measurement
 float si7021_get_temperature(void);
 
 #endif /* SRC_HEADER_FILES_SI7021_H_ */

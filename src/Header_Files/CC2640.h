@@ -1,6 +1,6 @@
+#include "HW_delay.h"
 #include "em_assert.h"
 #include "leuart.h"
-#include "HW_delay.h"
 
 #ifndef CC2640_HG
 #define CC2640_HG
@@ -14,7 +14,7 @@ void CC2640_open(LEUART_TypeDef *leuart_x, scheduler_event_t rx_cb_event);
 
 /**
  * @brief Sends the most recent charachter received through the function arg
- * 
+ *
  * @param c Return value pass by reference
  * @return uint32_t Returns non-zero if there is an error
  */

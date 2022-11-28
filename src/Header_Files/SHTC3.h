@@ -21,8 +21,13 @@
 #define SHTC3_POW_MS              1
 // #define SHTC3_POW_MS              0.25
 
+// Initialize the I2C peripheral passed in to the function for use with the
+// SHTC3
 void shtc3_i2c_open(I2C_TypeDef *i2c_x);
-void shtc3_i2c_begin_read(scheduler_event_t event);
+
+// request a new temperature and humidity measurement to be made.
+// The cb_event will be scheduled when the read is complete
+void shtc3_i2c_begin_read(scheduler_event_t cb_event);
 
 /**
  * @brief Pass by reference most recent temperature and humidity values as float

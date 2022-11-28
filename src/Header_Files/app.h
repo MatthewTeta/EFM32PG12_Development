@@ -12,8 +12,8 @@
 
 /* The developer's include statements */
 #include "CC2640.h"
-#include "SI7021.h"
 #include "SHTC3.h"
+#include "SI7021.h"
 #include "brd_config.h"
 #include "cmu.h"
 #include "gpio.h"

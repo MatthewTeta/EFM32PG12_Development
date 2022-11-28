@@ -22,10 +22,22 @@ typedef struct {
   scheduler_event_t   rx_cb_event;
 } leuart_open_t;
 
+/**
+ * @brief Initialize the LEUART peripheral for use
+ *
+ * @param leuart_x
+ * @param o Input parameters
+ */
 void leuart_open(LEUART_TypeDef *leuart_x, leuart_open_t *o);
 
-// Only implementing TX at the moment (not sure what to do with bytes received
-// yet)
+/**
+ * @brief The one and only method for initializing a TX data operation on LEUART
+ *
+ * @param leuart_x which leuart peripheral
+ * @param buff data to transmit
+ * @param len num bytes for tx
+ * @param cb_event optional callback event (use 0 for none)
+ */
 void leuart_tx_buff(LEUART_TypeDef *leuart_x, uint8_t *buff, uint32_t len,
                     scheduler_event_t cb_event);
 

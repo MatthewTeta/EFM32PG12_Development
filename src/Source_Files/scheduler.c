@@ -8,10 +8,7 @@
 
 static uint32_t event_scheduled;
 
-void scheduler_open(void) {
-  event_scheduled = 0;
-}
-
+void scheduler_open(void) { event_scheduled = 0; }
 
 void add_scheduled_event(uint32_t event) {
   CORE_DECLARE_IRQ_STATE;
@@ -27,6 +24,4 @@ void remove_scheduled_event(uint32_t event) {
   CORE_EXIT_CRITICAL();
 }
 
-uint32_t get_scheduled_events(void) {
-  return event_scheduled;
-}
+uint32_t get_scheduled_events(void) { return event_scheduled; }

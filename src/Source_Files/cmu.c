@@ -15,16 +15,13 @@
 // defined files
 //***********************************************************************************
 
-
 //***********************************************************************************
 // Private variables
 //***********************************************************************************
 
-
 //***********************************************************************************
 // Private functions
 //***********************************************************************************
-
 
 //***********************************************************************************
 // Global functions
@@ -38,30 +35,34 @@
  *    Configure the clock tree for the LETIMER and I2C
  *
  */
-void cmu_open(void){
-    // High Frequency Oscillator (I2C)
-    CMU_ClockEnable(cmuClock_HFPER, true);
+void cmu_open(void) {
+  // High Frequency Oscillator (I2C)
+  CMU_ClockEnable(cmuClock_HFPER, true);
 
-    // Low Frequency Oscillator
-    // By default, Low Frequency Resistor Capacitor Oscillator, LFRCO, is enabled,
-    // Enable the LFRCO oscillator
-    // CMU_OscillatorEnable(cmuOsc_LFRCO , true, true);
+  // Low Frequency Oscillator
+  // By default, Low Frequency Resistor Capacitor Oscillator, LFRCO, is enabled,
+  // Enable the LFRCO oscillator
+  // CMU_OscillatorEnable(cmuOsc_LFRCO , true, true);
 
-    // Disable the Low Frequency Crystal Oscillator, LFXO
-    CMU_OscillatorEnable(cmuOsc_LFXO, false, false);
+  // Disable the Low Frequency Crystal Oscillator, LFXO
+  CMU_OscillatorEnable(cmuOsc_LFXO, false, false);
 
-    // No requirement to enable the ULFRCO oscillator.  It is always enabled in EM0-4H
+  // No requirement to enable the ULFRCO oscillator.  It is always enabled in
+  // EM0-4H
 
-    // Route LF clock to LETIMER0 clock tree
-    CMU_ClockSelectSet(cmuClock_LFA , cmuSelect_ULFRCO); // What clock tree does the LETIMER0 reside on?
+  // Route LF clock to LETIMER0 clock tree
+  CMU_ClockSelectSet(
+      cmuClock_LFA,
+      cmuSelect_ULFRCO); // What clock tree does the LETIMER0 reside on?
 
-    // Route LF clock to LEUART through LFB
-    CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFRCO);
+  // Route LF clock to LEUART through LFB
+  CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFRCO);
 
-    // Now, you must ensure that the global Low Frequency is enabled
-//    CMU_ClockEnable(cmuClock_LETIMER0, true); //This enumeration is found in the Lab 2 assignment
-    CMU_ClockEnable(cmuClock_HFLE, true); //This enumeration is found in the Lab 2 assignment
-//    CMU_ClockEnable(cmuClock_LFA, true); //This enumeration is found in the Lab 2 assignment
-
+  // Now, you must ensure that the global Low Frequency is enabled
+  //    CMU_ClockEnable(cmuClock_LETIMER0, true); //This enumeration is found in
+  //    the Lab 2 assignment
+  CMU_ClockEnable(cmuClock_HFLE,
+                  true); // This enumeration is found in the Lab 2 assignment
+  //    CMU_ClockEnable(cmuClock_LFA, true); //This enumeration is found in the
+  //    Lab 2 assignment
 }
-

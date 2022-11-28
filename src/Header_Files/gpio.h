@@ -6,11 +6,10 @@
 
 /* System include statements */
 
-
 /* Silicon Labs include statements */
+#include "em_assert.h"
 #include "em_cmu.h"
 #include "em_gpio.h"
-#include "em_assert.h"
 
 /* The developer's include statements */
 #include "brd_config.h"
@@ -23,7 +22,6 @@
 //***********************************************************************************
 // global variables
 //***********************************************************************************
-
 
 //***********************************************************************************
 // function prototypes

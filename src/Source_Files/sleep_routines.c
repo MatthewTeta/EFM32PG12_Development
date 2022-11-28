@@ -26,7 +26,7 @@ void sleep_block_mode(uint32_t EM) {
   EFM_ASSERT(EM < MAX_ENERGY_MODES);
   lowest_energy_mode[EM]++;
   // Allow 4 peripherals maximum
-//  EFM_ASSERT(lowest_energy_mode[EM] < 5);
+  //  EFM_ASSERT(lowest_energy_mode[EM] < 5);
 
   CORE_EXIT_CRITICAL();
 }
@@ -37,7 +37,8 @@ void sleep_unblock_mode(uint32_t EM) {
 
   EFM_ASSERT(EM < MAX_ENERGY_MODES);
   lowest_energy_mode[EM]--;
-  // Programmer error if asserted (all block statements must have corresponding unblock)
+  // Programmer error if asserted (all block statements must have corresponding
+  // unblock)
   EFM_ASSERT(lowest_energy_mode[EM] >= 0);
 
   CORE_EXIT_CRITICAL();
@@ -50,21 +51,21 @@ void enter_sleep(void) {
   uint32_t mode = current_block_energy_mode();
   // Enter the corresponding mode (just under the sleepiest blocked mode)
   switch (mode) {
-    case EM0:
-      break;
-    case EM1:
-      break;
-    case EM2:
-      EMU_EnterEM1();
-      break;
-    case EM3:
-      EMU_EnterEM2(true);
-      break;
-    case EM4:
-      EMU_EnterEM3(true);
-      break;
-    default:
-      break;
+  case EM0:
+    break;
+  case EM1:
+    break;
+  case EM2:
+    EMU_EnterEM1();
+    break;
+  case EM3:
+    EMU_EnterEM2(true);
+    break;
+  case EM4:
+    EMU_EnterEM3(true);
+    break;
+  default:
+    break;
   }
 
   CORE_EXIT_CRITICAL();
@@ -73,6 +74,8 @@ void enter_sleep(void) {
 uint32_t current_block_energy_mode(void) {
   uint32_t mode;
   // Select lowest non-blocked energy mode
-  for (mode = 0; mode < MAX_ENERGY_MODES && lowest_energy_mode[mode] == 0; mode++);
+  for (mode = 0; mode < MAX_ENERGY_MODES && lowest_energy_mode[mode] == 0;
+       mode++)
+    ;
   return mode;
 }
