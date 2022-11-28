@@ -117,6 +117,7 @@ void scheduled_letimer0_uf_cb(void) {
   // Begin si7021 read
   si7021_i2c_begin_read_humidity(SI7021_HUMIDITY_CB);
   si7021_i2c_begin_read_temperature(SI7021_TEMPERATURE_CB);
+  shtc3_i2c_begin_read(SHTC3_READ_CB);
 }
 
 void scheduled_gpio_even_irq_cb(void) {
@@ -165,6 +166,8 @@ void scheduled_shtc3_read_cb(void) {
   float temperature, humidity;
   if (!shtc3_get_temperature_and_humidity(&temperature, &humidity))
     return;
+  // Convert to F
+  temperature = 32 + 1.8 * temperature;
   // TODO: Do something with the result
   if (temperature > 20 && temperature < 100)
     return;

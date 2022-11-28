@@ -11,7 +11,7 @@
 
 #define SHTC3_ADDR 0x70
 #define SHTC3_MEASURE_CMD                                                      \
-  { 0x44, 0xDE }
+  { 0x5C, 0x24 }
 #define SHTC3_WAKEUP_CMD                                                       \
   { 0x35, 0x17 }
 #define SHTC3_SLEEP_CMD                                                        \

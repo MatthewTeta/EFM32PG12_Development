@@ -13,6 +13,7 @@
 /* The developer's include statements */
 #include "CC2640.h"
 #include "SI7021.h"
+#include "SHTC3.h"
 #include "brd_config.h"
 #include "cmu.h"
 #include "gpio.h"
@@ -23,7 +24,7 @@
 //***********************************************************************************
 // defined files
 //***********************************************************************************
-#define PWM_PER     3.0   // PWM period in seconds
+#define PWM_PER     1.8   // PWM period in seconds
 #define PWM_ACT_PER 0.002 // PWM active period in seconds
 
 // EVENTS

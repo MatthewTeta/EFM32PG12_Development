@@ -288,7 +288,7 @@ void I2C0_IRQHandler(void) {
 }
 
 void I2C1_IRQHandler(void) {
-  I2C_TypeDef *i2c_x = I2C0;
+  I2C_TypeDef *i2c_x = I2C1;
   // Handle I2C Events
   uint32_t IF;
   // Read interrupt flags

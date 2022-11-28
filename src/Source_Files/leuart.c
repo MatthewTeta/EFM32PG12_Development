@@ -21,7 +21,7 @@ static volatile leuart_sm_t             *
 _get_leuart_tx_sm_from_leuart_td(LEUART_TypeDef *leuart_x);
 static void _leuart_rx_sm_handle_RXDATAV(volatile leuart_sm_t *sm);
 static void _leuart_tx_sm_handle_TXC(volatile leuart_sm_t *sm);
-static void _leuart_tx_sm_handle_TXBL(volatile leuart_sm_t *sm);
+//static void _leuart_tx_sm_handle_TXBL(volatile leuart_sm_t *sm);
 
 // sm singleton for each leuart on board
 static volatile leuart_sm_t leuart0_sm = {
@@ -128,9 +128,9 @@ void LEUART0_IRQHandler(void) {
   if (IF & LEUART_IEN_RXDATAV) {
     _leuart_rx_sm_handle_RXDATAV(sm);
   }
-  if (IF & LEUART_IF_TXBL) {
+//  if (IF & LEUART_IF_TXBL) {
 //    _leuart_tx_sm_handle_TXBL(sm);
-  }
+//  }
   if (IF & LEUART_IF_TXC) {
     _leuart_tx_sm_handle_TXC(sm);
   }
@@ -172,11 +172,11 @@ static void _leuart_tx_sm_handle_TXC(volatile leuart_sm_t *sm) {
  *
  * @param sm Instance of tx state machine for the given leuart
  */
-static void _leuart_tx_sm_handle_TXBL(volatile leuart_sm_t *sm) {
+//static void _leuart_tx_sm_handle_TXBL(volatile leuart_sm_t *sm) {
 //  if (!sm->busy)
 //    return;
 //  if (sm->i < sm->len) {
 //    sm->leuart_x->TXDATA = sm->buff[sm->i];
 //    sm->i += 1;
 //  }
-}
+//}
