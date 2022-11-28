@@ -137,7 +137,8 @@ void i2c_open(I2C_TypeDef *i2c_x, I2C_open_type *i2c_open_struct) {
     CMU_ClockEnable(cmuClock_I2C0, true);
   } else if (i2c_x == I2C1) {
     CMU_ClockEnable(cmuClock_I2C1, true);
-  }
+  } else
+    EFM_ASSERT(false);
 
   // Ensure that the clock is enabled properly
   if ((i2c_x->IF & 0x01) == 0) {
@@ -162,14 +163,18 @@ void i2c_open(I2C_TypeDef *i2c_x, I2C_open_type *i2c_open_struct) {
   i2c_x->IEN = I2C_IEN_ACK | I2C_IEN_NACK | I2C_IEN_RXDATAV | I2C_IEN_MSTOP;
 
   // Enable I2C Interrupts with the NVIC
-  NVIC_EnableIRQ(I2C0_IRQn);
+  if (i2c_x == I2C0) {
+    NVIC_EnableIRQ(I2C0_IRQn);
+  } else if (i2c_x == I2C1) {
+    NVIC_EnableIRQ(I2C1_IRQn);
+  }
 
   _i2c_bus_reset(i2c_x);
 }
 
 void _i2c_bus_reset(I2C_TypeDef *i2c_x) {
   // Abort i2c sm actions
-  i2c_x->CMD |= I2C_CMD_ABORT;
+  i2c_x->CMD = I2C_CMD_ABORT;
   // save IEN register
   uint32_t ien_tmp = i2c_x->IEN;
   // Disable interrupts and clear all interrupt flags
@@ -188,13 +193,13 @@ void _i2c_bus_reset(I2C_TypeDef *i2c_x) {
   // Clear IF's
   i2c_x->IFC = (uint32_t)~0x00;
   // Reset i2c peripheral state
-  i2c_x->CMD |= I2C_CMD_ABORT;
+  i2c_x->CMD = I2C_CMD_ABORT;
   // Enable original interrupts again
   i2c_x->IEN = ien_tmp;
 }
 
 // Add a job to the job queue (write)
-void i2c_write(I2C_TypeDef *i2c_x, uint8_t device_addr, uint8_t *buff,
+void i2c_write(I2C_TypeDef *i2c_x, uint8_t device_addr, uint8_t buff[],
                uint32_t len, scheduler_event_t cb_event) {
   // Argument invalid checking
   if (buff == NULL)
@@ -209,6 +214,7 @@ void i2c_write(I2C_TypeDef *i2c_x, uint8_t device_addr, uint8_t *buff,
   if (sm->i2c_x->STATE != I2C_STATE_STATE_IDLE)
     EFM_ASSERT(false);
 
+  sleep_block_mode(I2C_EM_BLOCK);
   sm->busy = true;
 
   // Construct the job
@@ -223,7 +229,7 @@ void i2c_write(I2C_TypeDef *i2c_x, uint8_t device_addr, uint8_t *buff,
   _i2c_sm_handle_nack(sm);
 }
 
-void i2c_read(I2C_TypeDef *i2c_x, uint8_t device_addr, uint8_t *buff,
+void i2c_read(I2C_TypeDef *i2c_x, uint8_t device_addr, uint8_t buff[],
               uint32_t len, scheduler_event_t cb_event) {
   // Argument invalid checking
   if (buff == NULL)
@@ -239,6 +245,7 @@ void i2c_read(I2C_TypeDef *i2c_x, uint8_t device_addr, uint8_t *buff,
   if (sm->i2c_x->STATE != I2C_STATE_STATE_IDLE)
     EFM_ASSERT(false);
 
+  sleep_block_mode(I2C_EM_BLOCK);
   sm->busy = true;
 
   // Construct the job
@@ -255,6 +262,32 @@ void i2c_read(I2C_TypeDef *i2c_x, uint8_t device_addr, uint8_t *buff,
 
 // IRQ Handlers
 void I2C0_IRQHandler(void) {
+  I2C_TypeDef *i2c_x = I2C0;
+  // Handle I2C Events
+  uint32_t IF;
+  // Read interrupt flags
+  IF = i2c_x->IF & i2c_x->IEN;
+  // Clear interrupt flags
+  i2c_x->IFC = IF;
+
+  // I2C_IEN_ACK | I2C_IEN_NACK | I2C_IEN_RXDATAV | I2C_IEN_MSTOP
+  volatile i2c_sm_t *sm = _get_sm_from_i2c(i2c_x);
+  // I2Cx intependent handler for all IRQ events
+  if (IF & I2C_IF_ACK) {
+    _i2c_sm_handle_ack(sm);
+  }
+  if (IF & I2C_IF_NACK) {
+    _i2c_sm_handle_nack(sm);
+  }
+  if (IF & I2C_IF_RXDATAV) {
+    _i2c_sm_handle_rxdatav(sm);
+  }
+  if (IF & I2C_IF_MSTOP) {
+    _i2c_sm_handle_mstop(sm);
+  }
+}
+
+void I2C1_IRQHandler(void) {
   I2C_TypeDef *i2c_x = I2C0;
   // Handle I2C Events
   uint32_t IF;

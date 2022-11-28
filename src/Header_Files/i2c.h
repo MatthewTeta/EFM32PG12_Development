@@ -42,10 +42,10 @@ void i2c_open(I2C_TypeDef *i2c_x, I2C_open_type *i2c_open);
 // void i2c_start(I2C_TypeDef *i2c_x, uint32_t recieve, uint8_t addr_dev,
 // uint8_t cmd_dev, uint8_t *buff, uint32_t buff_len, uint32_t EVENT_ID);
 
-void i2c_read(I2C_TypeDef *i2c_x, uint8_t device_addr, uint8_t *buff,
+void i2c_read(I2C_TypeDef *i2c_x, uint8_t device_addr, uint8_t buff[],
               uint32_t n_bytes, scheduler_event_t cb_event);
 
-void i2c_write(I2C_TypeDef *i2c_x, uint8_t device_addr, uint8_t *buff,
+void i2c_write(I2C_TypeDef *i2c_x, uint8_t device_addr, uint8_t buff[],
                uint32_t n_bytes, scheduler_event_t cb_event);
 
 // void i2c_stop(I2C_TypeDef *i2c_x);

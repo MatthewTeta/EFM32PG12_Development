@@ -12,7 +12,6 @@
 #ifndef SRC_HEADER_FILES_SI7021_H_
 #define SRC_HEADER_FILES_SI7021_H_
 
-#define SI7021_I2C_TypeDef             I2C0
 #define SI7021_ADDR                    0x40
 #define SI7021_MEASURE_HUMIDITY_CMD    0xE5
 #define SI7021_MEASURE_TEMPERATURE_CMD 0xE3

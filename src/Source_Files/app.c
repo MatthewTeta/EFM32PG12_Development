@@ -51,8 +51,8 @@ void app_peripheral_setup(void) {
   app_letimer_pwm_open(PWM_PER, PWM_ACT_PER, PWM_ROUTE_0, PWM_ROUTE_1);
   scheduler_open();
   sleep_open();
-  si7021_i2c_open(I2C0);
-  // shtc3_i2c_open(I2C1);
+  si7021_i2c_open(SI7021_I2C);
+  shtc3_i2c_open(SHTC3_I2C);
   CC2640_open(CC2640_LEUART, CC2640_RX_CB);
 
   letimer_start(LETIMER0, true); // letimer_start will inform the LETIMER0
@@ -150,7 +150,7 @@ void scheduled_si7021_read_humidity_cb(void) {
   int  len = sprintf(s, "%f\n", rv);
   if (len < 0)
     EFM_ASSERT(false);
-//  CC2640_tx_buff((uint8_t *)s, (uint32_t)len, 0);
+  //  CC2640_tx_buff((uint8_t *)s, (uint32_t)len, 0);
   CC2640_request_help();
   EFM_ASSERT(true);
 }
@@ -162,10 +162,12 @@ void scheduled_si7021_read_temperature_cb(void) {
 }
 
 void scheduled_shtc3_read_cb(void) {
-  // float humidity = shtc3_get_humidity();
-  // float temperature = shtc3_get_temperature();
-  // if (humidity < 0 || humidity > 100)
-  //   return;
+  float temperature, humidity;
+  if (!shtc3_get_temperature_and_humidity(&temperature, &humidity))
+    return;
+  // TODO: Do something with the result
+  if (temperature > 20 && temperature < 100)
+    return;
   EFM_ASSERT(true);
 }
 

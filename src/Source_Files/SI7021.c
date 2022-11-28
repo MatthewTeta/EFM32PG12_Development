@@ -31,7 +31,7 @@ void si7021_i2c_open(I2C_TypeDef *i2c_x) {
     SDA_LOC = I2C_ROUTELOC0_SDALOC_LOC15;
     SCL_LOC = I2C_ROUTELOC0_SCLLOC_LOC15;
   } else if (i2c_x == I2C1) {
-    SDA_LOC = I2C_ROUTELOC0_SDALOC_LOC20;
+    SDA_LOC = I2C_ROUTELOC0_SDALOC_LOC19;
     SCL_LOC = I2C_ROUTELOC0_SCLLOC_LOC19;
   } else
     EFM_ASSERT(false);
@@ -58,17 +58,19 @@ void si7021_i2c_open(I2C_TypeDef *i2c_x) {
 void si7021_i2c_begin_read_humidity(uint32_t EVENT_ID) {
   EFM_ASSERT(si7021_module_open);
   EFM_ASSERT(si7021_i2c_x != NULL);
-  uint8_t cmd[] = {SI7021_MEASURE_HUMIDITY_CMD};
+  static uint8_t cmd[] = {SI7021_MEASURE_HUMIDITY_CMD};
   i2c_write(si7021_i2c_x, SI7021_ADDR, cmd, 1, 0);
-  i2c_read(si7021_i2c_x, SI7021_ADDR, humidity_buff, 2, EVENT_ID);
+  i2c_read(si7021_i2c_x, SI7021_ADDR, humidity_buff, SI7021_RX_MEASURE_BUFF_LEN,
+           EVENT_ID);
 }
 
 void si7021_i2c_begin_read_temperature(uint32_t EVENT_ID) {
   EFM_ASSERT(si7021_module_open);
   EFM_ASSERT(si7021_i2c_x != NULL);
-  uint8_t cmd[] = {SI7021_MEASURE_TEMPERATURE_CMD};
+  static uint8_t cmd[] = {SI7021_MEASURE_TEMPERATURE_CMD};
   i2c_write(si7021_i2c_x, SI7021_ADDR, cmd, 1, 0);
-  i2c_read(si7021_i2c_x, SI7021_ADDR, temperature_buff, 2, EVENT_ID);
+  i2c_read(si7021_i2c_x, SI7021_ADDR, temperature_buff,
+           SI7021_RX_MEASURE_BUFF_LEN, EVENT_ID);
 }
 
 float si7021_get_humidity(void) {
