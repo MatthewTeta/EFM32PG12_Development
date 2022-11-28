@@ -7,21 +7,24 @@ typedef struct {
   uint8_t          *buff;
   uint32_t          i;
   uint32_t          len;
-  scheduler_event_t cb_event;
-} leuart_tx_sm_t;
+  uint32_t         *rx_byte;
+  scheduler_event_t tx_cb_event;
+  scheduler_event_t rx_cb_event;
+} leuart_sm_t;
 
 // Private static
 // static bool leuart_opened = false;
 
 // Private static functions
 static void _leuart_bus_reset(LEUART_TypeDef *leuart_x);
-static volatile leuart_tx_sm_t             *
+static volatile leuart_sm_t             *
 _get_leuart_tx_sm_from_leuart_td(LEUART_TypeDef *leuart_x);
-static void _leuart_tx_sm_handle_TXC(volatile leuart_tx_sm_t *sm);
-static void _leuart_tx_sm_handle_TXBL(volatile leuart_tx_sm_t *sm);
+static void _leuart_rx_sm_handle_RXDATAV(volatile leuart_sm_t *sm);
+static void _leuart_tx_sm_handle_TXC(volatile leuart_sm_t *sm);
+static void _leuart_tx_sm_handle_TXBL(volatile leuart_sm_t *sm);
 
 // sm singleton for each leuart on board
-static volatile leuart_tx_sm_t leuart0_tx_sm = {
+static volatile leuart_sm_t leuart0_sm = {
     .leuart_x = LEUART0,
     .busy     = false,
     .buff     = NULL,
@@ -30,8 +33,10 @@ static volatile leuart_tx_sm_t leuart0_tx_sm = {
 };
 
 void leuart_open(LEUART_TypeDef *leuart_x, leuart_open_t *o) {
+  volatile leuart_sm_t *sm = _get_leuart_tx_sm_from_leuart_td(leuart_x);
+
   // Check if any job is running currently
-  while (leuart0_tx_sm.busy)
+  while (sm->busy)
     ;
 
   _leuart_bus_reset(leuart_x);
@@ -59,15 +64,24 @@ void leuart_open(LEUART_TypeDef *leuart_x, leuart_open_t *o) {
   leuart_x->ROUTELOC0 = o->RX_LOC | o->TX_LOC;
   leuart_x->ROUTEPEN = (uint32_t)(((o->TX_EN & 0x01) << 1) | (o->RX_EN & 0x01));
 
+  // Setup RX buff location
+  sm->rx_byte = o->rx_byte;
+  if (!o->RX_EN) {
+    sm->rx_byte     = NULL;
+    sm->rx_cb_event = o->rx_cb_event;
+  }
+
   // Enable Interrups
-  leuart_x->IEN = LEUART_IEN_TXC | LEUART_IEN_TXBL;
+  leuart_x->IFC = (uint32_t)~0;
+  leuart_x->IEN = LEUART_IEN_RXDATAV;
 
   // Enable LEUART Interrupts with the NVIC
   NVIC_EnableIRQ(LEUART0_IRQn);
 }
 
-void leuart_tx_buff(LEUART_TypeDef *leuart_x, uint8_t *buff, uint32_t len, scheduler_event_t cb_event) {
-  volatile leuart_tx_sm_t *sm = _get_leuart_tx_sm_from_leuart_td(leuart_x);
+void leuart_tx_buff(LEUART_TypeDef *leuart_x, uint8_t *buff, uint32_t len,
+                    scheduler_event_t tx_cb_event) {
+  volatile leuart_sm_t *sm = _get_leuart_tx_sm_from_leuart_td(leuart_x);
   // Block while peripheral transmit is busy
   while (sm->busy)
     ;
@@ -75,24 +89,25 @@ void leuart_tx_buff(LEUART_TypeDef *leuart_x, uint8_t *buff, uint32_t len, sched
   // Begin transaction by calling equivallent IRQ handler function
   sleep_block_mode(LEUART_EM_BLOCK);
   // Fill tx sm
-  sm->busy = true;
-  sm->buff = buff;
-  sm->i = 0;
-  sm->len = len;
-  sm->cb_event = cb_event;
+  sm->busy        = true;
+  sm->buff        = buff;
+  sm->i           = 0;
+  sm->len         = len;
+  sm->tx_cb_event = tx_cb_event;
 
   // Cause the start of the transaction to occur
-  _leuart_tx_sm_handle_TXBL(sm);
+  leuart_x->IEN = LEUART_IEN_RXDATAV | LEUART_IEN_TXC;
+  _leuart_tx_sm_handle_TXC(sm);
 }
 
 static void _leuart_bus_reset(LEUART_TypeDef *leuart_x) {
   LEUART_Reset(leuart_x);
 }
 
-static volatile leuart_tx_sm_t *
+static volatile leuart_sm_t *
 _get_leuart_tx_sm_from_leuart_td(LEUART_TypeDef *leuart_x) {
   if (leuart_x == LEUART0)
-    return &leuart0_tx_sm;
+    return &leuart0_sm;
   EFM_ASSERT(false);
   return NULL;
 }
@@ -107,14 +122,25 @@ void LEUART0_IRQHandler(void) {
   // Clear interrupt flags
   leuart_x->IFC = IF;
   // Get corresponding tx_sm
-  volatile leuart_tx_sm_t *sm = _get_leuart_tx_sm_from_leuart_td(leuart_x);
-  // LEUART_IEN_TXBL | LEUART_IEN_TXC
+  volatile leuart_sm_t *sm = _get_leuart_tx_sm_from_leuart_td(leuart_x);
+  // LEUART_IEN_RXDATAV | LEUART_IEN_TXBL | LEUART_IEN_TXC
   // TXBL (TX Level) | TXC (TX Complete)
+  if (IF & LEUART_IEN_RXDATAV) {
+    _leuart_rx_sm_handle_RXDATAV(sm);
+  }
   if (IF & LEUART_IF_TXBL) {
-    _leuart_tx_sm_handle_TXBL(sm);
+//    _leuart_tx_sm_handle_TXBL(sm);
   }
   if (IF & LEUART_IF_TXC) {
     _leuart_tx_sm_handle_TXC(sm);
+  }
+}
+
+static void _leuart_rx_sm_handle_RXDATAV(volatile leuart_sm_t *sm) {
+  // Set rx_byte and tell scheduler to handle the byte
+  if (sm->rx_byte != NULL) {
+    *sm->rx_byte = sm->leuart_x->RXDATA;
+    add_scheduled_event(sm->rx_cb_event);
   }
 }
 
@@ -125,13 +151,19 @@ void LEUART0_IRQHandler(void) {
  *
  * @param sm Instance of tx state machine for the given leuart
  */
-static void _leuart_tx_sm_handle_TXC(volatile leuart_tx_sm_t *sm) {
-  EFM_ASSERT(sm->busy);
-  if (sm->i < sm->len)
+static void _leuart_tx_sm_handle_TXC(volatile leuart_sm_t *sm) {
+  if (!sm->busy)
     return;
-  sm->busy = false;
-  sleep_unblock_mode(LEUART_EM_BLOCK);
-  add_scheduled_event(sm->cb_event);
+  if (sm->i < sm->len) {
+
+      sm->leuart_x->TXDATA = sm->buff[sm->i];
+      sm->i += 1;
+  } else {
+    sm->leuart_x->IEN = LEUART_IEN_RXDATAV;
+    sm->busy          = false;
+    sleep_unblock_mode(LEUART_EM_BLOCK);
+    add_scheduled_event(sm->tx_cb_event);
+  }
 }
 
 /**
@@ -140,10 +172,11 @@ static void _leuart_tx_sm_handle_TXC(volatile leuart_tx_sm_t *sm) {
  *
  * @param sm Instance of tx state machine for the given leuart
  */
-static void _leuart_tx_sm_handle_TXBL(volatile leuart_tx_sm_t *sm) {
-  EFM_ASSERT(sm->busy);
-  if (sm->i < sm->len) {
-    sm->leuart_x->TXDATA = sm->buff[sm->i];
-    sm->i += 1;
-  }
+static void _leuart_tx_sm_handle_TXBL(volatile leuart_sm_t *sm) {
+//  if (!sm->busy)
+//    return;
+//  if (sm->i < sm->len) {
+//    sm->leuart_x->TXDATA = sm->buff[sm->i];
+//    sm->i += 1;
+//  }
 }

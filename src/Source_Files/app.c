@@ -8,8 +8,9 @@
 //***********************************************************************************
 // Include files
 //***********************************************************************************
-#include <stdio.h>
 #include "app.h"
+#include <stdio.h>
+#include <string.h>
 
 //***********************************************************************************
 // defined files
@@ -52,7 +53,7 @@ void app_peripheral_setup(void) {
   sleep_open();
   si7021_i2c_open(I2C0);
   // shtc3_i2c_open(I2C1);
-  // leuart_open()
+  CC2640_open(CC2640_LEUART, CC2640_RX_CB);
 
   letimer_start(LETIMER0, true); // letimer_start will inform the LETIMER0
                                  // peripheral to begin counting.
@@ -146,9 +147,11 @@ void scheduled_si7021_read_humidity_cb(void) {
   if (rv < 0 || rv > 100)
     return;
   char s[32];
-  int len = sprintf(s, "%f\n", rv);
-  if (len < 0) EFM_ASSERT(false);
-  leuart_tx_buff(BLE_LEUART, s, (uint32_t)len, 0);
+  int  len = sprintf(s, "%f\n", rv);
+  if (len < 0)
+    EFM_ASSERT(false);
+//  CC2640_tx_buff((uint8_t *)s, (uint32_t)len, 0);
+  CC2640_request_help();
   EFM_ASSERT(true);
 }
 
@@ -164,4 +167,18 @@ void scheduled_shtc3_read_cb(void) {
   // if (humidity < 0 || humidity > 100)
   //   return;
   EFM_ASSERT(true);
+}
+
+void scheduled_cc2640_rx_event(void) {
+  static uint8_t  rx_buff[CC2640_RX_BUFF_LEN] = {0};
+  static uint8_t  c                           = 0;
+  static uint32_t i                           = 0;
+  if (!cc2640_get_char(&c))
+    return;
+  if (i < CC2640_RX_BUFF_LEN) {
+    rx_buff[i] = c;
+    i += 1;
+  } else {
+    memset(rx_buff, 0, CC2640_RX_BUFF_LEN);
+  }
 }

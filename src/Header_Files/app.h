@@ -11,19 +11,19 @@
 #include "em_cmu.h"
 
 /* The developer's include statements */
+#include "CC2640.h"
 #include "SI7021.h"
 #include "brd_config.h"
 #include "cmu.h"
 #include "gpio.h"
 #include "letimer.h"
-#include "leuart.h"
 #include "scheduler.h"
 #include "sleep_routines.h"
 
 //***********************************************************************************
 // defined files
 //***********************************************************************************
-#define PWM_PER     0.5   // PWM period in seconds
+#define PWM_PER     3.0   // PWM period in seconds
 #define PWM_ACT_PER 0.002 // PWM active period in seconds
 
 // EVENTS
@@ -35,6 +35,9 @@
 #define SI7021_HUMIDITY_CB    (1 << 5)
 #define SI7021_TEMPERATURE_CB (1 << 6)
 #define SHTC3_READ_CB         (1 << 7)
+#define CC2640_RX_CB          (1 << 8)
+
+#define CC2640_RX_BUFF_LEN 1024
 
 //***********************************************************************************
 // global variables
@@ -52,5 +55,6 @@ void scheduled_gpio_odd_irq_cb(void);
 void scheduled_si7021_read_humidity_cb(void);
 void scheduled_si7021_read_temperature_cb(void);
 void scheduled_shtc3_read_cb(void);
+void scheduled_cc2640_rx_event(void);
 
 #endif

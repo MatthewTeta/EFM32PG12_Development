@@ -83,7 +83,7 @@
 #define SI7021_SENSOR_EN_GPIOMODE           gpioModePushPull
 
 // BLE LEUART Setup
-#define BLE_LEUART LEUART0
+#define CC2640_LEUART LEUART0
 
 //***********************************************************************************
 // global variables

@@ -4,8 +4,8 @@
  *  Created on: Oct 27, 2022
  *      Author: Matthew Teta
  */
-#include <stddef.h>
 #include "SI7021.h"
+#include <stddef.h>
 
 // Private static
 static bool         si7021_module_open = false;
@@ -20,8 +20,7 @@ static uint8_t      temperature_buff[SI7021_RX_MEASURE_BUFF_LEN];
  * @param i2c_x Choose the I2C bus which the sensor is connected to
  */
 void si7021_i2c_open(I2C_TypeDef *i2c_x) {
-  si7021_module_open = true;
-  si7021_i2c_x       = i2c_x;
+  si7021_i2c_x = i2c_x;
 
   // Wait for peripheral to be ready after power on
   timer_delay(SI7021_POW_MS);
@@ -48,11 +47,12 @@ void si7021_i2c_open(I2C_TypeDef *i2c_x) {
           },
       .SDA_LOC = SDA_LOC,
       .SCL_LOC = SCL_LOC,
-      .SCL_EN = true,
-      .SDA_EN = true,
+      .SCL_EN  = true,
+      .SDA_EN  = true,
   };
 
   i2c_open(i2c_x, &i2c_open_t);
+  si7021_module_open = true;
 }
 
 void si7021_i2c_begin_read_humidity(uint32_t EVENT_ID) {

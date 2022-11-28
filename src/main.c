@@ -64,7 +64,6 @@ int main(void) {
 
     // LETIMER Events
     if (events & LETIMER0_COMP0_CB) {
-      EFM_ASSERT(false);
       // Clear event
       remove_scheduled_event(LETIMER0_COMP0_CB);
       EFM_ASSERT(!(get_scheduled_events() & LETIMER0_COMP0_CB));
@@ -113,6 +112,11 @@ int main(void) {
       remove_scheduled_event(SHTC3_READ_CB);
       EFM_ASSERT(!(get_scheduled_events() & SHTC3_READ_CB));
       scheduled_shtc3_read_cb();
+    }
+    // CC2640 RX Event
+    if (events & CC2640_RX_CB) {
+      remove_scheduled_event(CC2640_RX_CB);
+      scheduled_cc2640_rx_event();
     }
   }
 }
