@@ -25,8 +25,8 @@ void si7021_i2c_open(I2C_TypeDef *i2c_x) {
   // Wait for peripheral to be ready after power on
   timer_delay(SI7021_POW_MS);
 
-  uint32_t SDA_LOC;
-  uint32_t SCL_LOC;
+  uint32_t SDA_LOC = 0;
+  uint32_t SCL_LOC = 0;
   if (i2c_x == I2C0) {
     SDA_LOC = I2C_ROUTELOC0_SDALOC_LOC15;
     SCL_LOC = I2C_ROUTELOC0_SCLLOC_LOC15;

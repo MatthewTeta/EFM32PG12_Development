@@ -157,7 +157,7 @@ void scheduled_si7021_read_humidity_cb(void) {
 }
 
 void scheduled_si7021_read_temperature_cb(void) {
-  // float rv = si7021_get_temperature();
+   float rv = si7021_get_temperature();
   // leuart_tx_buff()
   EFM_ASSERT(true);
 }
