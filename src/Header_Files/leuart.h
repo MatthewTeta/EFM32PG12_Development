@@ -13,13 +13,14 @@
 #define LEUART_EM_BLOCK EM2
 
 typedef struct {
-  LEUART_Init_TypeDef init;
   uint32_t            RX_LOC;
   uint32_t            TX_LOC;
   bool                RX_EN;
   bool                TX_EN;
-  uint32_t           *rx_byte;
+  bool                INVERT;
+  uint8_t            *rx_byte;
   scheduler_event_t   rx_cb_event;
+  LEUART_Init_TypeDef init;
 } leuart_open_t;
 
 /**

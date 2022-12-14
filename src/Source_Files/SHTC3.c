@@ -64,7 +64,7 @@ void shtc3_i2c_begin_read(scheduler_event_t cb_event) {
 //   for (uint32_t byte = 0; byte < nBytes; ++byte) {
 //     remainder ^= d[byte];
 //     for (uint32_t bit = 8; bit > 0; --bit) {
-//       if (remainder & 0x8000)
+//       if (remainder & 0x80)
 //         remainder = (remainder << 1) ^ poly;
 //       else
 //         remainder = (remainder << 1);
@@ -81,8 +81,10 @@ bool shtc3_get_temperature_and_humidity(float *temperature, float *humidity) {
   //  uint8_t  temp_crc     = shtc3_rx_buff[2];
   //  uint8_t  hum_crc      = shtc3_rx_buff[5];
   //  uint8_t  temp_crc_act = crc8(shtc3_rx_buff, SHTC3_RX_MEASURE_BUFF_LEN,
-  //  0x31); uint8_t  hum_crc_act  = crc8(shtc3_rx_buff + 3,
-  //  SHTC3_RX_MEASURE_BUFF_LEN, 0x31);
+  //  0x31); uint8_t  hum_crc_act =
+  //      crc8(shtc3_rx_buff + 3, SHTC3_RX_MEASURE_BUFF_LEN, 0x31);
+  //  if (temp_crc != temp_crc_act || hum_crc != hum_crc_act)
+  //    return false;
   // Convert values and return them
   *temperature = -45 + (175.0 * (float)temp_raw / (float)(0x01 << 16));
   *humidity    = 100.0 * (float)hum_raw / (float)(0x01 << 16);

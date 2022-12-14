@@ -7,7 +7,7 @@ typedef struct {
   uint8_t          *buff;
   uint32_t          i;
   uint32_t          len;
-  uint32_t         *rx_byte;
+  uint8_t          *rx_byte;
   scheduler_event_t tx_cb_event;
   scheduler_event_t rx_cb_event;
 } leuart_sm_t;
@@ -60,20 +60,35 @@ void leuart_open(LEUART_TypeDef *leuart_x, leuart_open_t *o) {
 
   // Initialize leuart
   LEUART_Init(leuart_x, &o->init);
+  while (leuart_x->SYNCBUSY & LEUART_SYNCBUSY_CTRL)
+    ;
+  leuart_x->CTRL |= (o->INVERT & 0x01);
+  while (leuart_x->SYNCBUSY & LEUART_SYNCBUSY_CTRL)
+    ;
   // Set GPIO Routes
   leuart_x->ROUTELOC0 = o->RX_LOC | o->TX_LOC;
+  while (leuart_x->SYNCBUSY & LEUART_SYNCBUSY_CTRL)
+    ;
   leuart_x->ROUTEPEN = (uint32_t)(((o->TX_EN & 0x01) << 1) | (o->RX_EN & 0x01));
 
+  while (leuart_x->SYNCBUSY & LEUART_SYNCBUSY_CTRL)
+    ;
   // Setup RX buff location
-  sm->rx_byte = o->rx_byte;
   if (!o->RX_EN) {
     sm->rx_byte     = NULL;
+    sm->rx_cb_event = 0;
+  } else {
+    sm->rx_byte     = o->rx_byte;
     sm->rx_cb_event = o->rx_cb_event;
   }
 
   // Enable Interrups
   leuart_x->IFC = (uint32_t)~0;
+  while (leuart_x->SYNCBUSY & LEUART_SYNCBUSY_CTRL)
+    ;
   leuart_x->IEN = LEUART_IEN_RXDATAV;
+  while (leuart_x->SYNCBUSY & LEUART_SYNCBUSY_CTRL)
+    ;
 
   // Enable LEUART Interrupts with the NVIC
   NVIC_EnableIRQ(LEUART0_IRQn);
@@ -139,7 +154,7 @@ void LEUART0_IRQHandler(void) {
 static void _leuart_rx_sm_handle_RXDATAV(volatile leuart_sm_t *sm) {
   // Set rx_byte and tell scheduler to handle the byte
   if (sm->rx_byte != NULL) {
-    *sm->rx_byte = sm->leuart_x->RXDATA;
+    *sm->rx_byte = (uint8_t)(sm->leuart_x->RXDATA & 0xFF);
     add_scheduled_event(sm->rx_cb_event);
   }
 }

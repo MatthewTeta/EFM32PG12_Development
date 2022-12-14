@@ -313,6 +313,7 @@ void I2C1_IRQHandler(void) {
   }
 }
 
+// Get corresponding static state machine instance for the given i2c_x base pointer peripheral
 static volatile i2c_sm_t *_get_sm_from_i2c(I2C_TypeDef *i2c_x) {
   if (i2c_x == I2C0) {
     return &i2c0_sm;
@@ -324,6 +325,8 @@ static volatile i2c_sm_t *_get_sm_from_i2c(I2C_TypeDef *i2c_x) {
   }
 }
 
+// Determine what to do given an ACK interrupt and a state machine instance
+// Responsible for writing data out in the case of a tx event
 static void _i2c_sm_handle_ack(volatile i2c_sm_t *sm) {
   switch (sm->job.type) {
   case I2C_JOB_TYPE_WRITE:
@@ -345,6 +348,8 @@ static void _i2c_sm_handle_ack(volatile i2c_sm_t *sm) {
   }
 }
 
+// Determine what to do in the case of a NACK and a sm instance
+// Sends repeated start with read or write bit set depending on the SM state
 static void _i2c_sm_handle_nack(volatile i2c_sm_t *sm) {
   switch (sm->job.type) {
   case I2C_JOB_TYPE_WRITE:
@@ -361,6 +366,8 @@ static void _i2c_sm_handle_nack(volatile i2c_sm_t *sm) {
   }
 }
 
+// Determine what to do in the case of an RXDATAV interrupt and a sm instance
+// In successful case (sm is ready for data) byyte will be inserted into buffer until the requested read amount is satisfied
 static void _i2c_sm_handle_rxdatav(volatile i2c_sm_t *sm) {
   switch (sm->job.type) {
   case I2C_JOB_TYPE_WRITE:
@@ -387,6 +394,8 @@ static void _i2c_sm_handle_rxdatav(volatile i2c_sm_t *sm) {
   }
 }
 
+// Determine what to do in the case of an MSTOP interrupt and a sm instance
+// Calls user CB in scheduler and sets sm to not busy after peripheral is in idle
 static void _i2c_sm_handle_mstop(volatile i2c_sm_t *sm) {
   while (sm->i2c_x->STATE != I2C_STATE_STATE_IDLE)
     ;

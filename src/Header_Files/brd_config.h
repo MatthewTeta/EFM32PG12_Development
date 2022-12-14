@@ -89,8 +89,15 @@
 #define SHTC3_SDA_GPIOMODE gpioModeWiredAnd
 #define SHTC3_I2C          I2C1
 
-// BLE LEUART Setup
-#define CC2640_LEUART LEUART0
+// CC2640 BLE LEUART Setup
+#define CC2640_TX_PORT          gpioPortD
+#define CC2640_TX_PIN           10
+#define CC2640_TX_DRIVE_STENGTH gpioDriveStrengthWeakAlternateWeak
+#define CC2640_TX_GPIOMODE      gpioModePushPull
+#define CC2640_RX_PORT          gpioPortD
+#define CC2640_RX_PIN           11
+#define CC2640_RX_GPIOMODE      gpioModeInput
+#define CC2640_LEUART           LEUART0
 
 //***********************************************************************************
 // global variables

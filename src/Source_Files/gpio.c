@@ -73,6 +73,11 @@ void gpio_open(uint32_t gpio_even_event, uint32_t gpio_odd_event) {
   // Configure GPIO for SHTC3 I2C
   GPIO_PinModeSet(SHTC3_SCL_PORT, SHTC3_SCL_PIN, SHTC3_SCL_GPIOMODE, true);
   GPIO_PinModeSet(SHTC3_SDA_PORT, SHTC3_SDA_PIN, SHTC3_SDA_GPIOMODE, true);
+
+  // Configure the GPIO for CC2640 UART
+  GPIO_DriveStrengthSet(CC2640_TX_PORT, CC2640_TX_DRIVE_STENGTH);
+  GPIO_PinModeSet(CC2640_TX_PORT, CC2640_TX_PIN, CC2640_TX_GPIOMODE, true);
+  GPIO_PinModeSet(CC2640_RX_PORT, CC2640_RX_PIN, CC2640_RX_GPIOMODE, true);
 }
 
 // IRQ handlers

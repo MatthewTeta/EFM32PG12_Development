@@ -52,7 +52,7 @@ void app_peripheral_setup(void) {
   scheduler_open();
   sleep_open();
   si7021_i2c_open(SI7021_I2C);
-  shtc3_i2c_open(SHTC3_I2C);
+  //  shtc3_i2c_open(SHTC3_I2C);
   CC2640_open(CC2640_LEUART, CC2640_RX_CB);
 
   letimer_start(LETIMER0, true); // letimer_start will inform the LETIMER0
@@ -117,7 +117,7 @@ void scheduled_letimer0_uf_cb(void) {
   // Begin si7021 read
   si7021_i2c_begin_read_humidity(SI7021_HUMIDITY_CB);
   si7021_i2c_begin_read_temperature(SI7021_TEMPERATURE_CB);
-  shtc3_i2c_begin_read(SHTC3_READ_CB);
+  //  shtc3_i2c_begin_read(SHTC3_READ_CB);
 }
 
 void scheduled_gpio_even_irq_cb(void) {
@@ -143,6 +143,11 @@ void scheduled_gpio_odd_irq_cb(void) {
   //  }
 }
 
+/**
+ * @brief This gets called when the SI7021 finished making a humidity
+ * measurement
+ *
+ */
 void scheduled_si7021_read_humidity_cb(void) {
   float rv = si7021_get_humidity();
   if (rv < 0 || rv > 100)
@@ -156,12 +161,23 @@ void scheduled_si7021_read_humidity_cb(void) {
   EFM_ASSERT(true);
 }
 
+/**
+ * @brief This gets called when the SI7021 successfully makes a temperature
+ * measurement
+ *
+ */
 void scheduled_si7021_read_temperature_cb(void) {
-   float rv = si7021_get_temperature();
+  float rv = si7021_get_temperature();
+  if (rv < 0 || rv > 100)
+    return;
   // leuart_tx_buff()
   EFM_ASSERT(true);
 }
 
+/**
+ * @brief This gets called when the SHTC3 gets a temp & humidity measurement
+ *
+ */
 void scheduled_shtc3_read_cb(void) {
   float temperature, humidity;
   if (!shtc3_get_temperature_and_humidity(&temperature, &humidity))
@@ -174,11 +190,16 @@ void scheduled_shtc3_read_cb(void) {
   EFM_ASSERT(true);
 }
 
+/**
+ * @brief Handle e new byte recieved by the LEUART CC2640 BLE driver. Store data
+ * locally in a static buffer for debugging purposes.
+ *
+ */
 void scheduled_cc2640_rx_event(void) {
   static uint8_t  rx_buff[CC2640_RX_BUFF_LEN] = {0};
   static uint8_t  c                           = 0;
   static uint32_t i                           = 0;
-  if (!cc2640_get_char(&c))
+  if (cc2640_get_char(&c) == -1)
     return;
   if (i < CC2640_RX_BUFF_LEN) {
     rx_buff[i] = c;

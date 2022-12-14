@@ -5,6 +5,7 @@
         "stdint.h": "c",
         "em_assert.h": "c",
         "si7021.h": "c",
-        "hw_delay.h": "c"
+        "hw_delay.h": "c",
+        "letimer.h": "c"
     }
 }
